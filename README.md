@@ -1,5 +1,8 @@
 Bulk Password Generator
 -----------------------
+## Demo
+
+https://passwords.greg.ca
 
 ## Installation
 
