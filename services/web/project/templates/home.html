@@ -1,20 +1,27 @@
-<html>
+<html data-theme="bumblebee">
 <head>
-    <title>Bulk Password Generator</title>
-    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='favicon.ico')}}">
+    <title>{{ app_title }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
     {% include 'custom.headers' ignore missing %}
+    <link href="{{ url_for('static', filename='css/tailwind.2.2.19.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/daisyui.2.6.0.css') }}" rel="stylesheet">
 </head>
-<body>
-<form method="POST" style="padding-top: 20px; padding-left: 20px">
-    <label><strong>Number of Passwords</strong></label><BR>
-    <input style="padding: 3px; margin-top: 3px;" id="number_of_passwords" name="number_of_passwords" placeholder="Default 30" size="16" autofocus><BR>
-    <BR>
-    <label><strong>Password Length</strong></label><BR>
-    <input style="padding: 3px; margin-top: 3px;" id="password_length" name="password_length" placeholder="Default 16" size="16"><BR>
-    <BR>
-    <label for="exclude_special">Exclude special characters?</label> <input id="exclude_special" type="checkbox" name="exclude_special" value="1"><BR>
-    <BR>
-    <input type="submit" value="Generate &gt;&gt;&gt;">
-</form>
+<body class="p-8">
+<div id="content">
+    <h1 class="text-2xl mb-3"><a href="/">{{ app_title }}</a></h1>
+    <form method="POST" action="/" class="form pb-7">
+        <div class="flex justify-left">
+            <fieldset class="fieldset bg-base-200 border border-base-300 p-8 rounded-box">
+                <label>Number of Passwords</label><BR>
+                <input id="number_of_passwords" class="input input-sm mb-3" name="number_of_passwords" placeholder="Default 30" autofocus><BR>
+                <label>Password Length</label><BR>
+                <input id="password_length" class="input input-sm mb-3" name="password_length" placeholder="Default 16"><BR>
+                <label for="exclude_special">Exclude special?</label>&nbsp;&nbsp;<input id="exclude_special" type="checkbox" name="exclude_special" value="1"><BR>
+                <input class="btn btn-primary mt-6 mb-1" type="submit" name="submit" value="Generate" onclick="$('#loading').show();">
+            </fieldset>
+        </div>
+    </form>
+</div>
 </body>
 </html>

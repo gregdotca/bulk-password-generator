@@ -10,13 +10,15 @@ import string
 # current module (__name__) as argument.
 app = Flask(__name__, static_folder="assets")
 
+APP_TITLE = "Bulk Password Generator"
+
 
 # The route() function of the Flask class is a decorator,
 # which tells the application which URL should call
 # the associated function.
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("home.html", app_title=APP_TITLE)
 
 
 @app.route("/", methods=["POST"])
