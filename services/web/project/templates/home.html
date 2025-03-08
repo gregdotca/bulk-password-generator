@@ -1,24 +1,26 @@
 <html data-theme="bumblebee">
 <head>
     <title>{{ app_title }}</title>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
     {% include 'custom.headers' ignore missing %}
-    <link href="{{ url_for('static', filename='css/tailwind.2.2.19.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/daisyui.2.6.0.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0/themes.css" rel="stylesheet" type="text/css" />
 </head>
 <body class="p-8">
 <div id="content">
     <h1 class="text-2xl mb-3"><a href="/">{{ app_title }}</a></h1>
     <form method="POST" action="/" class="form pb-7">
         <div class="flex justify-left">
-            <fieldset class="fieldset bg-base-200 border border-base-300 p-8 rounded-box">
-                <label>Number of Passwords</label><BR>
-                <input id="number_of_passwords" class="input input-sm mb-3" name="number_of_passwords" placeholder="Default 30" autofocus><BR>
-                <label>Password Length</label><BR>
-                <input id="password_length" class="input input-sm mb-3" name="password_length" placeholder="Default 16"><BR>
-                <label for="exclude_special">Exclude special?</label>&nbsp;&nbsp;<input id="exclude_special" type="checkbox" name="exclude_special" value="1"><BR>
-                <input class="btn btn-primary mt-6 mb-1" type="submit" name="submit" value="Generate" onclick="$('#loading').show();">
+            <fieldset class="fieldset bg-base-200 border border-base-300 p-10 rounded-box">
+                <label>Number of Passwords<BR>
+                <input id="number_of_passwords" class="input mt-1" name="number_of_passwords" placeholder="Default 30" autofocus></label>
+                <BR>
+                <label>Password Length<BR>
+                <input id="password_length" class="input mt-1" name="password_length" placeholder="Default 16"></label>
+                <label for="exclude_special" class="pt-5 pb-5">Exclude special?&nbsp;&nbsp;<input id="exclude_special" type="checkbox" name="exclude_special" value="1"></label>
+                <input class="btn btn-accent" type="submit" name="submit" value="Generate" onclick="$('#loading').show();">
             </fieldset>
         </div>
     </form>
