@@ -34,9 +34,7 @@ def generate_password(password_length, exclude_special):
     if exclude_special == "1":
         character_pool = string.ascii_letters + string.digits
     else:
-        character_pool = (
-                string.ascii_letters + string.digits + "!#$%&'()+,-.:;=?@[]^_{|}~"
-        )
+        character_pool = (string.ascii_letters + string.digits + "!#$%&'()+,-.:;=?@[]^_{|}~")
 
     characters = list(character_pool)
     random.shuffle(characters)
