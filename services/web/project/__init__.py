@@ -8,7 +8,7 @@ app = Flask(__name__, static_folder="assets")
 APP_TITLE = "Bulk Password Generator"
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
     return render_template("home.html", app_title=APP_TITLE)
 
@@ -35,7 +35,7 @@ def generate_password(password_length, exclude_special):
         character_pool = string.ascii_letters + string.digits
     else:
         character_pool = (
-            string.ascii_letters + string.digits + "!#$%&'()+,-.:;=?@[]^_{|}~"
+                string.ascii_letters + string.digits + "!#$%&'()+,-.:;=?@[]^_{|}~"
         )
 
     characters = list(character_pool)
