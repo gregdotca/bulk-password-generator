@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-12
+
+- Add Dependabot version updates in a new `.github/dependabot.yml`. Dependabot alerts and security fix PRs (set in the GitHub repo's settings, not in this file) only cover known vulnerabilities; nothing kept the pinned packages or the Python base image current otherwise. Dependabot now checks `services/web/requirements.txt` and the Python base image in `services/web/Dockerfile` once a month, with all pip updates grouped into one PR. It only proposes versions that have been out for at least 7 days, so a bad or hijacked release has time to be caught and pulled first; security fix PRs aren't delayed. Some versions aren't covered and still need updating by hand: flake8 and the Tailwind CLI, pinned inside the `Dockerfile`'s build steps; the vendored daisyUI file in `services/web/project/styles/`; and the test command in `CLAUDE.md`, whose Flask and Werkzeug versions should match `requirements.txt` after a Dependabot update and whose pytest version isn't tracked anywhere else. GitHub Actions isn't included because the repo has no workflows.
+
 ## 2026-10-11
 
 - Fix `python manage.py run` failing with "Could not locate a Flask application". `manage.py` passed the app to `FlaskGroup` as its first positional argument, which is `add_default_commands`, not the app, so the CLI only found the app through the `FLASK_APP` setting removed from the compose file earlier today. It now passes `create_app=lambda: app`, so the CLI always loads this app. Production is unaffected, because gunicorn loads `manage:app` directly. File changed: `services/web/manage.py:5`.
