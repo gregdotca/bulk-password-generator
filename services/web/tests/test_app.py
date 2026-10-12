@@ -70,6 +70,14 @@ def test_invalid_input_falls_back_to_defaults(client, value):
     assert all(len(password) == DEFAULT_PASSWORD_LENGTH for password in passwords)
 
 
+def test_missing_fields_fall_back_to_defaults(client):
+    response = client.post("/", data={})
+    assert response.status_code == 200
+    passwords = response.get_data(as_text=True).split("<BR>")
+    assert len(passwords) == DEFAULT_NUMBER_OF_PASSWORDS
+    assert all(len(html.unescape(password)) == DEFAULT_PASSWORD_LENGTH for password in passwords)
+
+
 @pytest.mark.parametrize("value, expected", [("1e1", 10), ("12.0", 12), (" 7 ", 7)])
 def test_number_field_formats(client, value, expected):
     passwords = generate(client, value, value)

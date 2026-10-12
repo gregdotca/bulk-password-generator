@@ -2,6 +2,8 @@
 
 ## 2026-10-11
 
+- Run gunicorn with 3 workers instead of 1. A single sync worker handles one request at a time, so a few visitors asking for the maximum (1,000 passwords of 256 characters, about 0.33 s each on the live site) at the same moment had to wait for each other. The container uses about 78 MB with 3 workers. File changed: `docker-compose.yml:10`.
+- Use the defaults when `number_of_passwords` or `password_length` is missing from the form, instead of returning a 400 error. Browsers always send both fields, but a script calling the site directly might not. File changed: `services/web/project/__init__.py:29-30`, with a test at `services/web/tests/test_app.py:73-78`.
 - Correct the development notes in `CLAUDE.md`. The local DEV compose file sets `FLASK_DEBUG=0`, which keeps Flask's debugger and reloader off, so Python and template changes need a container restart; only the Tailwind watcher's CSS rebuilds show without one, on the next page reload.
 - Send `Cache-Control: no-store` with the generated passwords. The response had no caching header, so the browser could keep the passwords in its cache and history, where someone else could later see them on a shared computer. File changed: `services/web/project/__init__.py:4,36-39`.
 - Make the two form fields number inputs (`type="number"`, `min="1"`, and a `max` of 1000 or 256, passed in from the app's caps so they can't drift apart). They were plain text fields, so phones showed a full keyboard and the browser couldn't flag out-of-range values. A blank field still uses the default, and the server still applies the caps. Files changed: `services/web/project/__init__.py:19-24`, `services/web/project/templates/home.html:18,21`.

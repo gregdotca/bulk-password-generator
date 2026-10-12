@@ -26,8 +26,8 @@ def home():
 
 @app.route("/", methods=["POST"])
 def home_post():
-    number_of_passwords = request.form["number_of_passwords"]
-    password_length = request.form["password_length"]
+    number_of_passwords = request.form.get("number_of_passwords", "")
+    password_length = request.form.get("password_length", "")
     exclude_special = request.form.get("exclude_special")
 
     number_of_passwords = parse_count(number_of_passwords, DEFAULT_NUMBER_OF_PASSWORDS, MAX_NUMBER_OF_PASSWORDS)
