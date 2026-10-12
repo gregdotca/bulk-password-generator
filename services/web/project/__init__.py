@@ -2,6 +2,7 @@
 import secrets
 import string
 from flask import Flask, render_template, request
+from markupsafe import escape
 
 app = Flask(__name__, static_folder="assets")
 
@@ -22,10 +23,7 @@ def home():
 def home_post():
     number_of_passwords = request.form["number_of_passwords"]
     password_length = request.form["password_length"]
-    try:
-        exclude_special = request.form["exclude_special"]
-    except Exception:
-        exclude_special = 0
+    exclude_special = request.form.get("exclude_special")
 
     number_of_passwords = parse_count(number_of_passwords, DEFAULT_NUMBER_OF_PASSWORDS, MAX_NUMBER_OF_PASSWORDS)
     password_length = parse_count(password_length, DEFAULT_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
@@ -65,7 +63,9 @@ def generate_password_list(number_of_passwords, password_length, exclude_special
     password_list = []
 
     for _ in range(int(number_of_passwords)):
-        password_list.append(generate_password(password_length, exclude_special))
+        # Escape each password so the browser can't read "&#9", "&lt", and so on
+        # as character references and show a different password
+        password_list.append(escape(generate_password(password_length, exclude_special)))
 
     return "<BR>".join(password_list)
 

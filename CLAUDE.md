@@ -25,17 +25,18 @@ flask --app project run
 
 ## Lint and tests
 
-There are no tests. Linting runs only inside the Docker build stage (`flake8==7.4.1 --ignore=E501,W503,F401`), so a flake8 error fails `docker compose build`. To check locally, from `services/web/`:
+Linting runs only inside the Docker build stage (`flake8==7.4.1 --ignore=E501,W503,F401`, over all of `services/web/`, tests included), so a flake8 error fails `docker compose build`. The tests are not run in the Docker build. The root `.venv` has no Flask installed, so run both under the Docker image's Python and pins, from `services/web/`:
 
 ```bash
-uvx --python 3.14 flake8==7.4.1 --ignore=E501,W503,F401 project manage.py
+uvx --python 3.14 flake8==7.4.1 --ignore=E501,W503,F401 .
+uv run --no-project --python 3.14 --with Flask==3.1.3 --with Werkzeug==3.1.9 --with pytest==8.4.2 python -m pytest -p no:cacheprovider tests
 ```
 
-The root `.venv` has no Flask installed. To exercise the routes without Docker, use Flask's test client under the Docker image's Python and pins, from `services/web/`: `uv run --no-project --python 3.14 --with Flask==3.1.3 --with Werkzeug==3.1.9 python -c "from project import app; ..."`.
+The tests in `services/web/tests/test_app.py` use Flask's test client and cover the counts, the caps, the fallbacks to defaults, the `exclude_special` pool, and the HTML escaping of the results.
 
 ## How it works
 
-- `GET /` renders the form. `POST /` reads `number_of_passwords` (default 30, max 1000), `password_length` (default 16, max 256), and the `exclude_special` checkbox (value `"1"` drops the special characters from the pool), then returns the passwords as a bare `<BR>`-joined string, not a template. This is deliberate: keep the results unstyled (no template, CSS, or dark mode), and don't suggest styling them.
+- `GET /` renders the form. `POST /` reads `number_of_passwords` (default 30, max 1000), `password_length` (default 16, max 256), and the `exclude_special` checkbox (value `"1"` drops the special characters from the pool), then returns the passwords as a bare `<BR>`-joined string, not a template. Each password is HTML-escaped with `markupsafe.escape`, because the pool includes `&`, `#`, and `;`, and the browser would otherwise decode sequences like `&#9` or `&lt` and show a different password. This is deliberate: keep the results unstyled (no template, CSS, or dark mode), and don't suggest styling them.
 - `manage.py` wraps `app` in a `FlaskGroup`; gunicorn loads `manage:app`.
 - Flask's static folder is renamed to `assets/` and served at `/assets/...`, but templates still reference it through `url_for('static', ...)`.
 - **CSS:** Tailwind 4 and daisyUI 5 are built at Docker build time, not loaded from a CDN. The Tailwind standalone CLI (version and per-architecture SHA-256s pinned as `ARG`s in the Dockerfile builder stage) compiles `project/styles/app.css` into `project/assets/app.css` (gitignored), which the final stage copies in. `app.css` uses `source(none)` and `@source "../templates"`, so Tailwind scans only the templates: a class used only from Python or JS won't be in the build unless it also appears in a template. daisyUI is the vendored plugin `project/styles/daisyui-<version>.mjs`, with only the `bumblebee` (light) and `business` (dark) themes enabled. To upgrade either one, update the Dockerfile `ARG`s (and `Dockerfile.DEV`), or replace the `.mjs` file and its reference in `app.css`.
