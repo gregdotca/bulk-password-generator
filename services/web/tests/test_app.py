@@ -36,6 +36,17 @@ def test_home_page(client):
     assert b"Bulk Password Generator" in response.data
 
 
+def test_form_fields_are_numbers_within_the_caps(client):
+    page = client.get("/").get_data(as_text=True)
+    assert f'type="number" min="1" max="{MAX_NUMBER_OF_PASSWORDS}" name="number_of_passwords"' in page
+    assert f'type="number" min="1" max="{MAX_PASSWORD_LENGTH}" name="password_length"' in page
+
+
+def test_results_are_not_cached(client):
+    response = client.post("/", data={"number_of_passwords": 1, "password_length": 16})
+    assert response.headers["Cache-Control"] == "no-store"
+
+
 def test_number_and_length(client):
     passwords = generate(client, 5, 20)
     assert len(passwords) == 5
@@ -52,11 +63,18 @@ def test_exclude_special(client):
     assert set("".join(passwords)) <= ALPHANUMERIC
 
 
-@pytest.mark.parametrize("value", ["", "abc", "0", "-5", "1.5"])
+@pytest.mark.parametrize("value", ["", "abc", "0", "-5", "1.5", "nan", "inf", "1e400"])
 def test_invalid_input_falls_back_to_defaults(client, value):
     passwords = generate(client, value, value)
     assert len(passwords) == DEFAULT_NUMBER_OF_PASSWORDS
     assert all(len(password) == DEFAULT_PASSWORD_LENGTH for password in passwords)
+
+
+@pytest.mark.parametrize("value, expected", [("1e1", 10), ("12.0", 12), (" 7 ", 7)])
+def test_number_field_formats(client, value, expected):
+    passwords = generate(client, value, value)
+    assert len(passwords) == expected
+    assert all(len(password) == expected for password in passwords)
 
 
 def test_values_above_the_maximum_are_capped(client):

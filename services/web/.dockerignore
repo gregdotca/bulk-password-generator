@@ -1,0 +1,9 @@
+# Build files, tests, and caches that the running app doesn't need
+Dockerfile*
+.dockerignore
+tests/
+**/__pycache__
+.pytest_cache/
+
+# Built inside the image; a local copy from the dev watcher is stale
+project/assets/app.css

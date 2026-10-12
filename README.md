@@ -3,6 +3,8 @@ Bulk Password Generator
 
 [![ACR B3b](https://img.shields.io/badge/ACR-B3b-2140B5)](ACR.md)
 
+A small web app that generates a list of random passwords. Choose how many passwords you want (up to 1,000) and how long they should be (up to 256 characters), and optionally leave out special characters. Passwords are generated with Python's `secrets` module.
+
 ## Demo
 
 https://passwords.greg.ca
@@ -10,7 +12,7 @@ https://passwords.greg.ca
 ## Installation
 
 - Clone the repository
-- Run "docker-compose up -d"
+- Run "docker compose up -d"
 - Load http://IP_ADDRESS:8085 in your web browser
 
 ## License
