@@ -14,9 +14,14 @@ Production (gunicorn on container port 5000, published on host port 8085). The g
 docker compose up -d --build
 ```
 
-Development uses local-only files that are excluded through `.git/info/exclude`, not `.gitignore`: `docker-compose.DEV.yml`, `services/web/Dockerfile.DEV`, `to-dev.sh`, and `to-prod.sh`. `./to-dev.sh` swaps the DEV compose file and Dockerfile into place (renaming the production ones to `*.PROD`), and `./to-prod.sh` swaps them back. The DEV compose file runs `python manage.py run -h 0.0.0.0` on port 5000 with `services/web/` mounted at `/app`, so code changes reload live. Run `./to-prod.sh` before committing, or the tracked `docker-compose.yml` and `Dockerfile` will show up as deleted or modified.
+Development uses local-only files that are excluded through `.git/info/exclude`, not `.gitignore`: `docker-compose.DEV.yml`, `services/web/Dockerfile.DEV`, `to-dev.sh`, and `to-prod.sh`. `./to-dev.sh` swaps the DEV compose file and Dockerfile into place (renaming the production ones to `*.PROD`), and `./to-prod.sh` swaps them back. The active environment's files are always `docker-compose.yml` and `services/web/Dockerfile`, and the committed ones are the production versions, so check which environment is active (`ls docker-compose.*.yml`) before editing or committing either one. Run `./to-prod.sh` before committing, or the tracked files will show up as modified. The DEV compose file runs `python manage.py run -h 0.0.0.0` on port 5000 with `services/web/` mounted at `/app`, so code changes reload live. Alongside it, `tailwindcss --watch=always` rebuilds `project/assets/app.css` into the mounted directory (`--watch=always` because the container's stdin is closed, which would otherwise stop the watcher). That file ends up owned by root on the host.
 
-Without Docker, from `services/web/`: `flask --app project run` (or `python manage.py run`).
+Without Docker (needs the [Tailwind standalone CLI](https://github.com/tailwindlabs/tailwindcss/releases) to build the CSS), from `services/web/`:
+
+```bash
+tailwindcss -i project/styles/app.css -o project/assets/app.css --watch &
+flask --app project run
+```
 
 ## Lint and tests
 
@@ -32,6 +37,6 @@ The root `.venv` has no Flask installed. To exercise the routes without Docker, 
 
 - `GET /` renders the form. `POST /` reads `number_of_passwords` (default 30, max 1000), `password_length` (default 16, max 256), and the `exclude_special` checkbox (value `"1"` drops the special characters from the pool), then returns the passwords as a bare `<BR>`-joined string, not a template.
 - `manage.py` wraps `app` in a `FlaskGroup`; gunicorn loads `manage:app`.
-- Flask's static folder is renamed to `assets/`, but templates still reference it through `url_for('static', ...)`.
-- `home.html` styles with daisyUI 5 and the Tailwind browser build from jsDelivr, and has no local CSS or JS build step.
+- Flask's static folder is renamed to `assets/` and served at `/assets/...`, but templates still reference it through `url_for('static', ...)`.
+- **CSS:** Tailwind 4 and daisyUI 5 are built at Docker build time, not loaded from a CDN. The Tailwind standalone CLI (version and per-architecture SHA-256s pinned as `ARG`s in the Dockerfile builder stage) compiles `project/styles/app.css` into `project/assets/app.css` (gitignored), which the final stage copies in. `app.css` uses `source(none)` and `@source "../templates"`, so Tailwind scans only the templates: a class used only from Python or JS won't be in the build unless it also appears in a template. daisyUI is the vendored plugin `project/styles/daisyui-<version>.mjs`, with only the `bumblebee` theme enabled. To upgrade either one, update the Dockerfile `ARG`s (and `Dockerfile.DEV`), or replace the `.mjs` file and its reference in `app.css`.
 - `home.html` optionally includes `templates/custom.headers` (`ignore missing`). The file is git-ignored and is meant for per-deployment extras such as analytics tags.
