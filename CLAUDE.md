@@ -8,7 +8,7 @@ A single-page Flask app that generates a list of random passwords. Live demo: ht
 
 ## Running
 
-Production (gunicorn, served on host port 8085):
+Production (gunicorn on container port 5000, published on host port 8085). The gunicorn command has `--no-control-socket` because the app doesn't use gunicorn's `gunicornc` control tool, and the `app` user can't create its default socket in `/home/app/.gunicorn`:
 
 ```bash
 docker compose up -d --build
@@ -20,13 +20,13 @@ Without Docker, from `services/web/`: `flask --app project run` (or `python mana
 
 ## Lint and tests
 
-There are no tests. Linting runs only inside the Docker build stage (`flake8==3.9.1 --ignore=E501,F401`), so a flake8 error fails `docker compose build`. To check locally, from `services/web/`:
+There are no tests. Linting runs only inside the Docker build stage (`flake8==7.4.1 --ignore=E501,W503,F401`), so a flake8 error fails `docker compose build`. To check locally, from `services/web/`:
 
 ```bash
-uvx --python 3.9 flake8==3.9.1 --ignore=E501,F401 project manage.py
+uvx --python 3.14 flake8==7.4.1 --ignore=E501,W503,F401 project manage.py
 ```
 
-The root `.venv` has no Flask installed. To exercise the routes without Docker, use Flask's test client under the Docker image's Python and pins, from `services/web/`: `uv run --no-project --python 3.9 --with Flask==2.3.0 --with Werkzeug==2.3.0 python -c "from project import app; ..."`.
+The root `.venv` has no Flask installed. To exercise the routes without Docker, use Flask's test client under the Docker image's Python and pins, from `services/web/`: `uv run --no-project --python 3.14 --with Flask==3.1.3 --with Werkzeug==3.1.9 python -c "from project import app; ..."`.
 
 ## How it works
 
@@ -35,4 +35,3 @@ The root `.venv` has no Flask installed. To exercise the routes without Docker, 
 - Flask's static folder is renamed to `assets/`, but templates still reference it through `url_for('static', ...)`.
 - `home.html` styles with daisyUI 5 and the Tailwind browser build from jsDelivr, and has no local CSS or JS build step.
 - `home.html` optionally includes `templates/custom.headers` (`ignore missing`). The file is git-ignored and is meant for per-deployment extras such as analytics tags.
-- `requirements.txt` pins Flask-SQLAlchemy and psycopg2-binary, but the app uses neither.
