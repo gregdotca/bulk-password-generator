@@ -13,6 +13,11 @@ MAX_NUMBER_OF_PASSWORDS = 1000
 DEFAULT_PASSWORD_LENGTH = 16
 MAX_PASSWORD_LENGTH = 256
 
+# Lets the browser show the results in its own dark colours when the visitor
+# prefers dark mode. It only changes the default background and text colours,
+# not the text itself, the font, or what's copied
+COLOR_SCHEME_META = '<meta name="color-scheme" content="light dark">'
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -33,7 +38,7 @@ def home_post():
     number_of_passwords = parse_count(number_of_passwords, DEFAULT_NUMBER_OF_PASSWORDS, MAX_NUMBER_OF_PASSWORDS)
     password_length = parse_count(password_length, DEFAULT_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
 
-    response = make_response(generate_password_list(number_of_passwords, password_length, exclude_special))
+    response = make_response(COLOR_SCHEME_META + generate_password_list(number_of_passwords, password_length, exclude_special))
     # Keep the passwords out of the browser's cache and history
     response.headers["Cache-Control"] = "no-store"
     return response

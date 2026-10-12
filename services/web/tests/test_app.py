@@ -4,6 +4,7 @@ import string
 import pytest
 
 from project import (
+    COLOR_SCHEME_META,
     DEFAULT_NUMBER_OF_PASSWORDS,
     DEFAULT_PASSWORD_LENGTH,
     MAX_NUMBER_OF_PASSWORDS,
@@ -20,6 +21,12 @@ def client():
     return app.test_client()
 
 
+def password_html(response):
+    body = response.get_data(as_text=True)
+    assert body.startswith(COLOR_SCHEME_META)
+    return body.removeprefix(COLOR_SCHEME_META)
+
+
 def generate(client, number_of_passwords, password_length, exclude_special=None):
     form = {"number_of_passwords": number_of_passwords, "password_length": password_length}
     if exclude_special is not None:
@@ -27,7 +34,7 @@ def generate(client, number_of_passwords, password_length, exclude_special=None)
     response = client.post("/", data=form)
     assert response.status_code == 200
     # Unescape the HTML the way a browser would, to get the passwords as shown
-    return [html.unescape(password) for password in response.get_data(as_text=True).split("<BR>")]
+    return [html.unescape(password) for password in password_html(response).split("<BR>")]
 
 
 def test_home_page(client):
@@ -73,7 +80,7 @@ def test_invalid_input_falls_back_to_defaults(client, value):
 def test_missing_fields_fall_back_to_defaults(client):
     response = client.post("/", data={})
     assert response.status_code == 200
-    passwords = response.get_data(as_text=True).split("<BR>")
+    passwords = password_html(response).split("<BR>")
     assert len(passwords) == DEFAULT_NUMBER_OF_PASSWORDS
     assert all(len(html.unescape(password)) == DEFAULT_PASSWORD_LENGTH for password in passwords)
 
@@ -95,4 +102,4 @@ def test_passwords_are_html_escaped(client, monkeypatch):
     # Without escaping, the browser would show "&#9" as a tab and "&lt" as "<"
     monkeypatch.setattr("project.generate_password", lambda length, exclude: "a&#9b&lt;c<d>")
     response = client.post("/", data={"number_of_passwords": 2, "password_length": 16})
-    assert response.get_data(as_text=True) == "a&amp;#9b&amp;lt;c&lt;d&gt;<BR>a&amp;#9b&amp;lt;c&lt;d&gt;"
+    assert password_html(response) == "a&amp;#9b&amp;lt;c&lt;d&gt;<BR>a&amp;#9b&amp;lt;c&lt;d&gt;"
