@@ -1,5 +1,8 @@
 Bulk Password Generator
 -----------------------
+
+[![ACR B2b](https://img.shields.io/badge/ACR-B2b-2140B5)](ACR.md)
+
 ## Demo
 
 https://passwords.greg.ca
@@ -8,7 +11,7 @@ https://passwords.greg.ca
 
 - Clone the repository
 - Run "docker-compose up -d"
-- Load https://IP_ADDRESS:8085 in your web browser
+- Load http://IP_ADDRESS:8085 in your web browser
 
 ## License
 
