@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-import random
+import secrets
 import string
 from flask import Flask, render_template, request
 
 app = Flask(__name__, static_folder="assets")
 
 APP_TITLE = "Bulk Password Generator"
+
+DEFAULT_NUMBER_OF_PASSWORDS = 30
+MAX_NUMBER_OF_PASSWORDS = 1000
+DEFAULT_PASSWORD_LENGTH = 16
+MAX_PASSWORD_LENGTH = 256
 
 
 @app.route("/", methods=["GET"])
@@ -22,10 +27,24 @@ def home_post():
     except Exception:
         exclude_special = 0
 
-    number_of_passwords = 30 if not number_of_passwords else number_of_passwords
-    password_length = 16 if not password_length else password_length
+    number_of_passwords = parse_count(number_of_passwords, DEFAULT_NUMBER_OF_PASSWORDS, MAX_NUMBER_OF_PASSWORDS)
+    password_length = parse_count(password_length, DEFAULT_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH)
 
     return generate_password_list(number_of_passwords, password_length, exclude_special)
+
+
+def parse_count(value, default, maximum):
+    # Blank, non-numeric, or non-positive input falls back to the default,
+    # and anything above the maximum is capped so one request can't tie up a worker
+    try:
+        count = int(value)
+    except ValueError:
+        return default
+
+    if count < 1:
+        return default
+
+    return min(count, maximum)
 
 
 def generate_password(password_length, exclude_special):
@@ -36,12 +55,8 @@ def generate_password(password_length, exclude_special):
     else:
         character_pool = (string.ascii_letters + string.digits + "!#$%&'()+,-.:;=?@[]^_{|}~")
 
-    characters = list(character_pool)
-    random.shuffle(characters)
-
-    for i in range(int(password_length)):
-        password_list.append(random.choice(characters))
-    random.shuffle(password_list)
+    for _ in range(int(password_length)):
+        password_list.append(secrets.choice(character_pool))
 
     return "".join(password_list)
 
