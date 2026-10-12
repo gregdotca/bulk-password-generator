@@ -2,6 +2,7 @@
 
 ## 2026-10-11
 
+- Correct the development notes in `CLAUDE.md`. The local DEV compose file sets `FLASK_DEBUG=0`, which keeps Flask's debugger and reloader off, so Python and template changes need a container restart; only the Tailwind watcher's CSS rebuilds show without one, on the next page reload.
 - Send `Cache-Control: no-store` with the generated passwords. The response had no caching header, so the browser could keep the passwords in its cache and history, where someone else could later see them on a shared computer. File changed: `services/web/project/__init__.py:4,36-39`.
 - Make the two form fields number inputs (`type="number"`, `min="1"`, and a `max` of 1000 or 256, passed in from the app's caps so they can't drift apart). They were plain text fields, so phones showed a full keyboard and the browser couldn't flag out-of-range values. A blank field still uses the default, and the server still applies the caps. Files changed: `services/web/project/__init__.py:19-24`, `services/web/project/templates/home.html:18,21`.
 - Run gunicorn directly in `docker-compose.yml` instead of through `bash -c`, and remove the `FLASK_APP` and `FLASK_ENV` settings. gunicorn loads `manage:app` itself and never read `FLASK_APP`, and Flask 2.3 removed `FLASK_ENV`, so neither did anything. Without the wrapper, gunicorn is the container's main process and gets Docker's stop signal directly. File changed: `docker-compose.yml:10,13`.
