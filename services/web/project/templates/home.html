@@ -1,6 +1,7 @@
 <!doctype html>
-<html lang="en" data-theme="bumblebee">
+<html lang="en">
 <head>
+    <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ app_title }}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
@@ -19,7 +20,7 @@
                 <label>Password Length<BR>
                 <input id="password_length" class="input mt-1" name="password_length" placeholder="Default 16"></label>
                 <label for="exclude_special" class="pt-5 pb-5">Exclude special?&nbsp;&nbsp;<input id="exclude_special" type="checkbox" name="exclude_special" value="1"></label>
-                <input class="btn btn-accent" type="submit" name="submit" value="Generate">
+                <input class="btn btn-accent dark:btn-primary" type="submit" name="submit" value="Generate">
             </fieldset>
         </div>
     </form>
