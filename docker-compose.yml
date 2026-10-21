@@ -9,5 +9,5 @@ services:
       dockerfile: Dockerfile
     command: gunicorn --bind 0.0.0.0:5000 --workers 3 --no-control-socket manage:app
     ports:
-      - 8085:5000
+      - ${BIND_ADDRESS:-127.0.0.1}:8085:5000
     restart: unless-stopped

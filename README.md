@@ -13,7 +13,9 @@ https://passwords.greg.ca
 
 - Clone the repository
 - Run "docker compose up -d"
-- Load http://IP_ADDRESS:8085 in your web browser
+- Load http://127.0.0.1:8085 in your web browser
+
+The app listens on port 8085 on 127.0.0.1 only, so it can't be reached from other machines unless a reverse proxy on the same host forwards to it. To listen on a different address, set `BIND_ADDRESS`, either in your shell or in a `.env` file next to `docker-compose.yml` (for example `BIND_ADDRESS=0.0.0.0` for every interface), and then run `docker compose up -d` again.
 
 ## License
 

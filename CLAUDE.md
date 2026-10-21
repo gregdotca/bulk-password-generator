@@ -8,7 +8,7 @@ A single-page Flask app that generates a list of random passwords. Live demo: ht
 
 ## Running
 
-Production (gunicorn with 3 sync workers on container port 5000, published on host port 8085). The gunicorn command has `--no-control-socket` because the app doesn't use gunicorn's `gunicornc` control tool, and the `app` user can't create its default socket in `/home/app/.gunicorn`:
+Production (gunicorn with 3 sync workers on container port 5000, published on host port 8085 on `${BIND_ADDRESS:-127.0.0.1}`, so only on localhost unless `BIND_ADDRESS` is set in the shell or a git-ignored `.env` next to the compose file). The gunicorn command has `--no-control-socket` because the app doesn't use gunicorn's `gunicornc` control tool, and the `app` user can't create its default socket in `/home/app/.gunicorn`:
 
 ```bash
 docker compose up -d --build

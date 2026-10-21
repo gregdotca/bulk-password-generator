@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-21
+
+- Publish port 8085 on 127.0.0.1 by default instead of on every interface. `docker-compose.yml` published `8085:5000`, which Docker binds to `0.0.0.0`, so on a server with a public IP the app was reachable directly on that IP, skipping any reverse proxy in front of it (Docker's own firewall rules also get around host firewalls like ufw). The port is now `${BIND_ADDRESS:-127.0.0.1}:8085:5000`: set `BIND_ADDRESS` in the shell or in a `.env` file next to the compose file to listen somewhere else. File changed: `docker-compose.yml:12`.
+- Ignore `.env` in `.gitignore`, so a deployment's `BIND_ADDRESS` setting isn't committed.
+- Explain the default address and the `BIND_ADDRESS` setting in `README.md`, and change the installation step to load `http://127.0.0.1:8085`, since `IP_ADDRESS` no longer works from another machine by default.
+
 ## 2026-10-12
 
 - Update Python from 3.14.7 to 3.14.8 (`python:3.14.8-slim`) in both stages of `services/web/Dockerfile`. 3.14.8 is an expedited security release (fixes for SSL and tarfile bugs, among others). Tested: the production image builds (flake8 passes) and runs, the page and its assets load, and it generates the requested number and length of passwords, letters and digits only when special characters are excluded, and caps an oversized request at 1,000 passwords of 256 characters. flake8 and all 20 tests also pass on Python 3.14.8 with the commands in `CLAUDE.md`. The locally excluded dev Dockerfile isn't in the repo; it was moved to 3.14.8 by hand to match.
