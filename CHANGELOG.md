@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-11
+
+- Link the rating in `ACR.md` to its page on aicoderating.com.
+
 ## 2026-10-21
 
 - Publish port 8085 on 127.0.0.1 by default instead of on every interface. `docker-compose.yml` published `8085:5000`, which Docker binds to `0.0.0.0`, so on a server with a public IP the app was reachable directly on that IP, skipping any reverse proxy in front of it (Docker's own firewall rules also get around host firewalls like ufw). The port is now `${BIND_ADDRESS:-127.0.0.1}:8085:5000`: set `BIND_ADDRESS` in the shell or in a `.env` file next to the compose file to listen somewhere else. File changed: `docker-compose.yml:12`.
